@@ -63,12 +63,40 @@ db.serialize(() => {
         `INSERT INTO vehicles (plate) VALUES ('06 ABC 123'), ('34 XYZ 987'), ('06 KTR 529'), ('34 YDZ 218'), ('35 HLM 803'), ('01 BKC 740'), ('16 NAR 651'), ('42 RMT 374'), ('07 ZPL 986'), ('21 DKN 123'), ('55 EYT 430'), ('61 VSK 209')`
       );
       db.run(`INSERT INTO engineers (name, branch) VALUES 
-        ('Ali Yıldız', 'Çevre'),
-        ('Mehmet Koç', 'İnşaat'),
-        ('Ayşe Güneş', 'Ziraat'),
-        ('Abdullah Turgut', 'Elektrik-Elektronik'),
-        ('Serkan Aydınlı', 'Maden'),
-        ('Hasan Demir', 'Bilgisayar')
+        ('Ali Yıldız', 'Environmental'), 
+        ('Zehra Nurtaş', 'Environmental'),
+        ('Mehmet Koç', 'Civil'),
+        ('Ahmet Bayraktar', 'Civil'),
+        ('Esra Karaman', 'Civil'),
+        ('Ayşe Güneş', 'Agriculture'),
+        ('Hakan Öztürk', 'Agriculture'),
+        ('Abdullah Turgut', 'Electronic-Electronical'),
+        ('Cemile Arı', 'Electronic-Electronical'),
+        ('Serkan Aydınlı', 'Mining'),
+        ('Yunus Emre Alkan', 'Mining'),
+        ('Hasan Demir', 'Computer'),
+        ('Büşra Kılıç', 'Computer'),
+        ('Onur Güven', 'Computer'),
+        ('Zeynep Karaca', 'Mechanical'),
+        ('Alihan Işık', 'Mechanical'),
+        ('Burak Şahin', 'Industrial'),
+        ('Neslihan Ateş', 'Industrial'),
+        ('Elif Aksoy', 'Mechatronics'),
+        ('Barış Güler', 'Mechatronics'),
+        ('Hüseyin Yılmaz', 'Chemical'),
+        ('Merve Taş', 'Chemical'),
+        ('Fatma Çelik', 'Petroleum'),
+        ('Tuncay Kaplan', 'Petroleum'),
+        ('İbrahim Arslan', 'Automotive'),
+        ('Melis Bozkurt', 'Automotive'),
+        ('Merve Özcan', 'Software'),
+        ('Kenan Ersoy', 'Software'),
+        ('Ahmet Kaya', 'Biomedical'),
+        ('Rabia Keskin', 'Biomedical'),
+        ('Gülşah Erdem', 'Geological'),
+        ('Eren Bayındır', 'Geological'),
+        ('Mustafa Tunç', 'Marine'),
+        ('Seda Polat', 'Marine')
       `);
     }
   });
@@ -101,7 +129,7 @@ app.get("/missions", (req, res) => {
   const sql = `
     SELECT missions.*, 
            drivers.name as driver_name, 
-           vehicles.plate as plate_number
+           vehicles.plate as vehicle_plate
     FROM missions
     JOIN drivers ON drivers.id = missions.driver_id
     JOIN vehicles ON vehicles.id = missions.vehicle_id
@@ -111,10 +139,24 @@ app.get("/missions", (req, res) => {
   db.all(sql, [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
 
-    const formatted = rows.map((row) => ({
-      ...row,
-      engineers: JSON.parse(row.engineers),
-    }));
+    const formatted = rows.map((row) => {
+      let engineers = [];
+
+      try {
+        engineers = JSON.parse(row.engineers);
+      } catch (e) {
+        engineers = [];
+      }
+
+      return {
+        id: row.id,
+        driver_name: row.driver_name,
+        vehicle_plate: row.vehicle_plate,
+        start_time: row.start_time,
+        end_time: row.end_time,
+        engineers: engineers,
+      };
+    });
 
     res.json(formatted);
   });
